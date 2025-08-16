@@ -21,18 +21,13 @@ import { useCallback, useEffect, useRef } from 'react';
 type RichTextEditorProps = {
 	value?: string;
 	onChange?: (html: string) => void;
-	placeholder?: string;
 	'aria-describedby'?: string;
 };
 
-export const RichTextEditor = ({
-	value,
-	onChange,
-	placeholder = 'Descrição da tarefa...',
-	...a11y
-}: RichTextEditorProps) => {
+export const RichTextEditor = ({ value, onChange, ...a11y }: RichTextEditorProps) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
+	// Configuração do editor de texto rico Tiptap
 	const editor = useEditor({
 		extensions: [
 			StarterKit.configure({
@@ -41,7 +36,7 @@ export const RichTextEditor = ({
 			}),
 			Image,
 			Placeholder.configure({
-				placeholder,
+				placeholder: 'Descrição da tarefa...',
 			}),
 		],
 		content: value || '',
@@ -68,6 +63,7 @@ export const RichTextEditor = ({
 		}
 	}, [value, editor]);
 
+	// Função para adicionar uma imagem a partir de um arquivo
 	const addImageFromFile = useCallback(
 		(file: File) => {
 			const reader = new FileReader();
@@ -82,6 +78,7 @@ export const RichTextEditor = ({
 		[editor],
 	);
 
+	// Função para lidar com a mudança de arquivo (seleção de imagem)
 	const onFileChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
 			const f = event.target.files?.[0];
@@ -93,6 +90,7 @@ export const RichTextEditor = ({
 		[addImageFromFile],
 	);
 
+	// Função para alternar o link no texto selecionado
 	const toggleLink = useCallback(() => {
 		if (!editor) return;
 

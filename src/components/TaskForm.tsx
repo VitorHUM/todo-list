@@ -11,59 +11,51 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTasksStore } from '@/hooks/useTasksStore';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { useEffect, useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
+import { shallow } from 'zustand/shallow';
 import { RichTextEditor } from './RichTextEditor';
 
-type TaskPayload = {
-	title: string;
-	description: string;
-};
+function validateTaskTitle(title: string, normalizedTitles: string[]) {
+	const t = title.trim();
 
-type TaskFormProps = {
-	onAdd?: (task: TaskPayload) => void;
-};
+	if (t.length === 0) return 'Informe um título para a tarefa';
 
-export const TaskForm = ({ onAdd }: TaskFormProps) => {
+	const isDuplicate = normalizedTitles.includes(t.toLowerCase());
+
+	if (isDuplicate) return 'Já existe uma tarefa com esse título';
+
+	return null;
+}
+
+export const TaskForm = () => {
 	const [open, setOpen] = useState<boolean>(false);
 	const [title, setTitle] = useState<string>('');
 	const [description, setDescription] = useState<string>('');
-	const [touched, setTouched] = useState(false);
-	const isTitleInvalid = touched && title.trim().length === 0;
+	const [error, setError] = useState<string | null>(null);
 	const id = useId();
+	const inputRef = useRef<HTMLInputElement>(null);
 
-	useEffect(() => {
-		// Função para habilitar o atalho Ctrl+N para criar uma nova tarefa
-		const handleHotKey = (event: KeyboardEvent) => {
-			// Tratamento para evitar conflito com campos de formulário
-			const target = event.target as HTMLElement | null;
+	const addTask = useTasksStore((s) => s.addTask);
 
-			const isTyping =
-				target &&
-				(target.tagName === 'INPUT' ||
-					target.tagName === 'TEXTAREA' ||
-					target.getAttribute('contenteditable') === 'true');
-
-			if (isTyping) return;
-
-			if (event.key.toLowerCase() === 'n') {
-				event.preventDefault();
-				setOpen(true);
-			}
-		};
-
-		window.addEventListener('keydown', handleHotKey);
-		return () => window.removeEventListener('keydown', handleHotKey);
-	}, []);
+	// Mantém a lista de títulos já normalizados
+	const storedTitles = useTasksStore(
+		(s) => s.tasks.map((t) => t.title.trim().toLowerCase()),
+		shallow,
+	);
 
 	const handleSave = (event?: React.FormEvent) => {
 		event?.preventDefault();
 
-		const t = title.trim();
+		const validationError = validateTaskTitle(title, storedTitles);
+		if (validationError) {
+			setError(validationError);
+			inputRef.current?.focus();
+			return;
+		}
 
-		if (!t) return;
-
-		onAdd?.({ title: t, description: description });
+		addTask(title.trim(), description);
 
 		handleClose();
 	};
@@ -71,23 +63,32 @@ export const TaskForm = ({ onAdd }: TaskFormProps) => {
 	const handleClose = () => {
 		setTitle('');
 		setDescription('');
+		setError(null);
 		setOpen(false);
-		setTouched(false);
 	};
 
 	return (
-		<section aria-labelledby="add">
+		<section aria-labelledby="add" className="flex items-center justify-between">
 			<h2 id="add" className="sr-only">
 				Adicionar tarefa
 			</h2>
 
-			<Dialog open={open} onOpenChange={setOpen}>
+			<Dialog
+				open={open}
+				onOpenChange={(next) => {
+					setOpen(next);
+					if (!next) {
+						setError(null);
+						setTitle('');
+						setDescription('');
+					}
+				}}
+			>
 				<DialogTrigger asChild>
 					<Button
 						type="button"
-						aria-keyshortcuts="n"
-						className="bg-primary-purple hover:bg-primary-purple/80"
-						size={'lg'}
+						className="bg-primary-green-dark hover:bg-primary-green-dark/80"
+						size="lg"
 					>
 						Nova tarefa
 					</Button>
@@ -97,10 +98,11 @@ export const TaskForm = ({ onAdd }: TaskFormProps) => {
 					<VisuallyHidden>
 						<DialogTitle>Adicionar tarefa</DialogTitle>
 					</VisuallyHidden>
+
 					<DialogHeader>
 						<DialogTitle id={`${id}-title`}>Adicionar tarefa</DialogTitle>
 						<DialogDescription id={`${id}-desc`}>
-							Preencha o título e a descrição da tarefa.
+							Preencha o título e a descrição da tarefa
 						</DialogDescription>
 					</DialogHeader>
 
@@ -111,34 +113,45 @@ export const TaskForm = ({ onAdd }: TaskFormProps) => {
 						aria-labelledby={`${id}-title`}
 					>
 						<div className="grid gap-2">
-							<Label htmlFor={`${id}-input`} className="">
-								Título
-							</Label>
+							<Label htmlFor={`${id}-input`}>Título</Label>
 
 							<Input
 								id={`${id}-input`}
+								ref={inputRef}
 								value={title}
-								onChange={(e) => setTitle(e.target.value)}
-								onBlur={() => setTouched(true)}
-								placeholder="Implementar tela de login"
-								aria-invalid={isTitleInvalid || undefined}
+								onChange={(e) => {
+									setTitle(e.target.value);
+									// Limpa erro ao digitar
+									if (error) setError(null);
+								}}
+								placeholder="Título da tarefa"
+								aria-invalid={error ? true : undefined}
+								aria-describedby={error ? `${id}-title-error` : undefined}
 								required
 							/>
+
+							{error && (
+								<p
+									id={`${id}-title-error`}
+									className="text-destructive text-sm"
+									role="alert"
+								>
+									{error}
+								</p>
+							)}
 						</div>
 
 						<div className="grid gap-2">
-							<Label htmlFor={`${id}-desc`}>Descrição</Label>
+							<Label htmlFor={`${id}-desc-field`}>Descrição</Label>
 
-							<div id={`${id}-desc`}>
+							<div id={`${id}-desc-field`}>
 								<RichTextEditor
 									value={description}
 									onChange={setDescription}
 									aria-describedby={`${id}-desc-hint`}
-									placeholder="Implementar a tela de login com autenticação via API"
 								/>
-
 								<p id={`${id}-desc-hint`} className="sr-only">
-									Use a barra de ferramentas para formatar e inserir imagens.
+									Use a barra de ferramentas para formatar e inserir imagens
 								</p>
 							</div>
 						</div>
@@ -152,7 +165,6 @@ export const TaskForm = ({ onAdd }: TaskFormProps) => {
 
 							<Button
 								type="submit"
-								disabled={isTitleInvalid}
 								className="bg-primary-green-dark hover:bg-primary-green-dark/80"
 							>
 								Salvar
@@ -161,6 +173,18 @@ export const TaskForm = ({ onAdd }: TaskFormProps) => {
 					</form>
 				</DialogContent>
 			</Dialog>
+
+			<h2 className="text-primary-gray text-sm">
+				<time dateTime={new Date().toISOString()}>
+					{new Intl.DateTimeFormat('pt-BR', {
+						weekday: 'long',
+						day: '2-digit',
+						month: 'long',
+						year: 'numeric',
+						timeZone: 'America/Sao_Paulo',
+					}).format(new Date())}
+				</time>
+			</h2>
 		</section>
 	);
 };
