@@ -21,25 +21,32 @@ import { useCallback, useEffect, useRef } from 'react';
 type RichTextEditorProps = {
 	value?: string;
 	onChange?: (html: string) => void;
+	editable?: boolean;
+	showToolbar?: boolean;
 	'aria-describedby'?: string;
 };
 
-export const RichTextEditor = ({ value, onChange, ...a11y }: RichTextEditorProps) => {
+export const RichTextEditor = ({
+	value,
+	onChange,
+	editable = true,
+	showToolbar = true,
+	...a11y
+}: RichTextEditorProps) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	// Configuração do editor de texto rico Tiptap
+	// Configuração do editor de texto Tiptap
 	const editor = useEditor({
 		extensions: [
 			StarterKit.configure({
 				heading: { levels: [1, 2] },
 				link: { openOnClick: true, autolink: true, linkOnPaste: true },
 			}),
-			Image,
+			Image.configure({ allowBase64: true }),
 			Placeholder.configure({
 				placeholder: 'Descrição da tarefa...',
 			}),
 		],
-		content: value || '',
 		editorProps: {
 			attributes: {
 				class:
@@ -48,6 +55,8 @@ export const RichTextEditor = ({ value, onChange, ...a11y }: RichTextEditorProps
 				role: 'textbox',
 			},
 		},
+		content: value || '',
+		editable,
 		onUpdate: ({ editor }) => {
 			onChange?.(editor.getHTML());
 		},
@@ -62,6 +71,12 @@ export const RichTextEditor = ({ value, onChange, ...a11y }: RichTextEditorProps
 			editor.commands.setContent(value, { emitUpdate: false });
 		}
 	}, [value, editor]);
+
+	useEffect(() => {
+		if (!editor) return;
+
+		editor.setEditable(editable);
+	}, [editable, editor]);
 
 	// Função para adicionar uma imagem a partir de um arquivo
 	const addImageFromFile = useCallback(
@@ -110,160 +125,162 @@ export const RichTextEditor = ({ value, onChange, ...a11y }: RichTextEditorProps
 	if (!editor) return null;
 
 	return (
-		<div className="space-y-2">
-			<div className="flex flex-wrap justify-between">
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().setParagraph().run()}
-					aria-pressed={editor.isActive('paragraph')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('paragraph') ? 'on' : 'off'}
-					title="Parágrafo"
-				>
-					<Text size={14} />
-				</Button>
+		<div className="space-y-2" data-readyonly={!editable}>
+			{showToolbar && editable && (
+				<div className="flex flex-wrap justify-between">
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().setParagraph().run()}
+						aria-pressed={editor.isActive('paragraph')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('paragraph') ? 'on' : 'off'}
+						title="Parágrafo"
+					>
+						<Text size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-					aria-pressed={editor.isActive('heading', { level: 1 })}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('heading', { level: 1 }) ? 'on' : 'off'}
-					title="Heading 1"
-				>
-					<Heading1 size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+						aria-pressed={editor.isActive('heading', { level: 1 })}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('heading', { level: 1 }) ? 'on' : 'off'}
+						title="Heading 1"
+					>
+						<Heading1 size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-					aria-pressed={editor.isActive('heading', { level: 2 })}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('heading', { level: 2 }) ? 'on' : 'off'}
-					title="Heading 2"
-				>
-					<Heading2 size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+						aria-pressed={editor.isActive('heading', { level: 2 })}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('heading', { level: 2 }) ? 'on' : 'off'}
+						title="Heading 2"
+					>
+						<Heading2 size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleBold().run()}
-					aria-pressed={editor.isActive('bold')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('bold') ? 'on' : 'off'}
-					title="Negrito"
-				>
-					<Bold size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleBold().run()}
+						aria-pressed={editor.isActive('bold')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('bold') ? 'on' : 'off'}
+						title="Negrito"
+					>
+						<Bold size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleItalic().run()}
-					aria-pressed={editor.isActive('italic')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('italic') ? 'on' : 'off'}
-					title="Itálico"
-				>
-					<Italic size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleItalic().run()}
+						aria-pressed={editor.isActive('italic')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('italic') ? 'on' : 'off'}
+						title="Itálico"
+					>
+						<Italic size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleUnderline().run()}
-					aria-pressed={editor.isActive('underline')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('underline') ? 'on' : 'off'}
-					title="Sublinhado"
-				>
-					<UnderlineIcon size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleUnderline().run()}
+						aria-pressed={editor.isActive('underline')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('underline') ? 'on' : 'off'}
+						title="Sublinhado"
+					>
+						<UnderlineIcon size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleBulletList().run()}
-					aria-pressed={editor.isActive('bulletList')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('bulletList') ? 'on' : 'off'}
-					title="Lista com marcadores"
-				>
-					<List size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleBulletList().run()}
+						aria-pressed={editor.isActive('bulletList')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('bulletList') ? 'on' : 'off'}
+						title="Lista com marcadores"
+					>
+						<List size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleOrderedList().run()}
-					aria-pressed={editor.isActive('orderedList')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('orderedList') ? 'on' : 'off'}
-					title="Lista numerada"
-				>
-					<ListOrdered size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleOrderedList().run()}
+						aria-pressed={editor.isActive('orderedList')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('orderedList') ? 'on' : 'off'}
+						title="Lista numerada"
+					>
+						<ListOrdered size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={toggleLink}
-					aria-pressed={editor.isActive('link')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('link') ? 'on' : 'off'}
-					title={editor.isActive('link') ? 'Remover link' : 'Adicionar link'}
-				>
-					<LinkIcon size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={toggleLink}
+						aria-pressed={editor.isActive('link')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('link') ? 'on' : 'off'}
+						title={editor.isActive('link') ? 'Remover link' : 'Adicionar link'}
+					>
+						<LinkIcon size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-					aria-pressed={editor.isActive('codeBlock')}
-					className={`data-[state=on]:bg-primary-gray/40`}
-					data-state={editor.isActive('codeBlock') ? 'on' : 'off'}
-					title="Bloco de código"
-				>
-					<Code2 size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+						aria-pressed={editor.isActive('codeBlock')}
+						className={`data-[state=on]:bg-primary-gray/40`}
+						data-state={editor.isActive('codeBlock') ? 'on' : 'off'}
+						title="Bloco de código"
+					>
+						<Code2 size={14} />
+					</Button>
 
-				<Button
-					type="button"
-					variant="outline"
-					size="icon"
-					onClick={() => fileInputRef.current?.click()}
-					title="Imagem"
-				>
-					<ImageIcon size={14} />
-				</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => fileInputRef.current?.click()}
+						title="Imagem"
+					>
+						<ImageIcon size={14} />
+					</Button>
 
-				<input
-					ref={fileInputRef}
-					type="file"
-					accept="image/*"
-					className="sr-only"
-					onChange={onFileChange}
-					aria-hidden
-					tabIndex={-1}
-				/>
-			</div>
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept="image/*"
+						className="sr-only"
+						onChange={onFileChange}
+						aria-hidden
+						tabIndex={-1}
+					/>
+				</div>
+			)}
 
-			<div {...a11y}>
+			<div {...a11y} className={`${!editable ? 'bg-muted/40' : ''}`}>
 				<EditorContent editor={editor} />
 			</div>
 		</div>

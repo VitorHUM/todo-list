@@ -17,15 +17,17 @@ type TasksStore = {
 	removeCompleted: () => void;
 	clearTasks: () => void;
 
+	// Setters dos filtros
 	setFilter: (f: TaskFilter) => void;
 	setSearchTerm: (term: string) => void;
 	setOrderBy: (o: TaskOrderBy) => void;
 
-	// Outros
+	// Utilitários
 	getCounts: () => { total: number; active: number; done: number };
 	getFiltered: () => Task[];
 };
 
+// Função para ordenar as tarefas
 function sortTasks(list: Task[], orderBy: TaskOrderBy) {
 	const arr = [...list];
 
@@ -64,6 +66,7 @@ export const useTasksStore = createWithEqualityFn<TasksStore>()(
 					],
 				})),
 
+			// Alterna o estado de conclusão da tarefa
 			toggleTask: (id) =>
 				set((s) => ({
 					tasks: s.tasks.map((t) =>
@@ -71,21 +74,27 @@ export const useTasksStore = createWithEqualityFn<TasksStore>()(
 					),
 				})),
 
+			// Edita uma tarefa
 			editTask: (id, title, description) =>
 				set((s) => ({
 					tasks: s.tasks.map((t) => (t.id === id ? { ...t, title, description } : t)),
 				})),
 
+			// Remove uma tarefa pelo ID
 			removeTask: (id) => set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
 
+			// Remove todas as tarefas concluídas
 			removeCompleted: () => set((s) => ({ tasks: s.tasks.filter((t) => !t.completed) })),
 
+			// Exclui todas as tarefas
 			clearTasks: () => set(() => ({ tasks: [] })),
 
+			// Setters para filtros
 			setFilter: (filter) => set({ filter }),
 			setSearchTerm: (searchTerm) => set({ searchTerm }),
 			setOrderBy: (orderBy) => set({ orderBy }),
 
+			// Retorna a contagem de tarefas total, ativas e concluídas
 			getCounts: () => {
 				const tasks = get().tasks;
 
@@ -96,6 +105,7 @@ export const useTasksStore = createWithEqualityFn<TasksStore>()(
 				return { total: tasks.length, active, done };
 			},
 
+			// Retorna as tarefas filtradas e ordenadas
 			getFiltered: () => {
 				const { tasks, filter, searchTerm, orderBy } = get();
 
