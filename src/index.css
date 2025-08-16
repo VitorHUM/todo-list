@@ -129,5 +129,95 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		@apply font-poppins antialiased;
+	}
+}
+
+.tiptap {
+	:first-child {
+		margin-top: 0;
+	}
+
+	p.is-editor-empty:first-child::before {
+		content: attr(data-placeholder);
+		float: left;
+		height: 0;
+		pointer-events: none;
+		opacity: 0.6;
+		font-size: 14px;
+	}
+
+	p {
+		font-size: 14px;
+	}
+
+	/* List styles */
+	ul,
+	ol {
+		padding: 0 1rem;
+		margin: 1.25rem 1rem 1.25rem 0.4rem;
+
+		li p {
+			margin-top: 0.25em;
+			margin-bottom: 0.25em;
+		}
+	}
+
+	ul {
+		list-style: disc;
+	}
+
+	ol {
+		list-style: decimal;
+	}
+
+	img {
+		max-width: 100%;
+		height: auto;
+		border-radius: 0.5rem;
+	}
+
+	/* Heading styles */
+	h1,
+	h2 {
+		line-height: 1.1;
+		margin-top: 2.5rem;
+		text-wrap: pretty;
+	}
+
+	h1,
+	h2 {
+		margin-top: 3.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	h1 {
+		font-size: 1.4rem;
+	}
+
+	h2 {
+		font-size: 1.2rem;
+	}
+
+	a {
+		color: var(--color-primary-purple-light);
+		text-decoration: underline;
+	}
+
+	/* Code and preformatted text styles */
+	pre {
+		background: var(--color-primary-dark);
+		border-radius: 0.5rem;
+		color: var(--color-primary-light);
+		font-family: monospace;
+		margin: 1.5rem 0;
+		padding: 0.75rem 1rem;
+
+		code {
+			background: none;
+			color: inherit;
+			font-size: 0.8rem;
+			padding: 0;
+		}
 	}
 }
