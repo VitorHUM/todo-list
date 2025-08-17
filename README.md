@@ -1,9 +1,11 @@
-## 📃 To-Do List (Lista de Tarefas)
+## 📃 [To-Do List (Lista de Tarefas)](https://vitorhum.github.io/todo-list/)
 
 [![ToDo List Screenshot][app-screenshot]](https://i.imgur.com/edzFZ8d.png)
 
 Aplicação de lista de tarefas focada em UX, acessibilidade e simplicidade.
 Permite criar, visualizar, editar e excluir tarefas, persistência local de dados, entre outras funcionalidades.
+<br/>
+Você pode acessar a aplicação e testar através do link: https://vitorhum.github.io/todo-list/
 
 ## ⚒️ Stack
 
