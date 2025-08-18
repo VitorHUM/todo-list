@@ -1,5 +1,5 @@
 import { useTasksStore } from '@/hooks/useTasksStore';
-import type { TaskFilter, TaskOrderBy } from '@/interfaces/task.interface';
+import type { TaskFilter, TaskOrderBy } from '@/types/task.type';
 import { Search, X } from 'lucide-react';
 import { shallow } from 'zustand/shallow';
 import { TaskItems } from './TaskItems';

@@ -1,4 +1,4 @@
-import type { Task, TaskFilter, TaskOrderBy } from '@/interfaces/task.interface';
+import type { Task, TaskFilter, TaskOrderBy } from '@/types/task.type';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { createWithEqualityFn } from 'zustand/traditional';
 

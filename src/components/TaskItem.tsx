@@ -1,5 +1,5 @@
 import { useTasksStore } from '@/hooks/useTasksStore';
-import type { Task } from '@/interfaces/task.interface';
+import type { Task } from '@/types/task.type';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Pencil, Trash2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
