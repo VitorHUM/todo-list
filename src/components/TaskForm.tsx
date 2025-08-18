@@ -76,7 +76,7 @@ export const TaskForm = () => {
 		handleClose();
 	};
 
-	// Função para fechar o diálogo e limpar os campos
+	// Função para fechar o modal e limpar os campos
 	const handleClose = () => {
 		setTitle('');
 		setDescription('');
@@ -154,7 +154,9 @@ export const TaskForm = () => {
 						aria-labelledby={`${id}-title`}
 					>
 						<div className="grid gap-2">
-							<Label htmlFor={`${id}-input`}>Título</Label>
+							<Label htmlFor={`${id}-input`} className="text-sm">
+								Título
+							</Label>
 
 							<Input
 								id={`${id}-input`}
@@ -182,7 +184,9 @@ export const TaskForm = () => {
 						</div>
 
 						<div className="grid gap-2">
-							<Label htmlFor={`${id}-desc-field`}>Descrição</Label>
+							<Label htmlFor={`${id}-desc-field`} className="text-sm">
+								Descrição
+							</Label>
 
 							<div id={`${id}-desc-field`}>
 								<RichTextEditor

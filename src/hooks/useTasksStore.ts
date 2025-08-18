@@ -128,6 +128,7 @@ export const useTasksStore = createWithEqualityFn<TasksStore>()(
 		}),
 		{
 			name: 'todo-list',
+			version: 1,
 			storage: createJSONStorage(() => localStorage),
 			partialize: (s) => ({
 				tasks: s.tasks,
@@ -135,7 +136,6 @@ export const useTasksStore = createWithEqualityFn<TasksStore>()(
 				searchTerm: s.searchTerm,
 				orderBy: s.orderBy,
 			}),
-			version: 1,
 		},
 	),
 );

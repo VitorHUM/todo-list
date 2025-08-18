@@ -71,7 +71,10 @@ export const TaskList = () => {
 							Buscar por título
 						</Label>
 
-						<Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 opacity-60" />
+						<Search
+							className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 opacity-60"
+							aria-hidden
+						/>
 
 						<Input
 							id="task-search"
@@ -105,7 +108,10 @@ export const TaskList = () => {
 							Ordenar por:
 						</Label>
 
-						<Select value={orderBy} onValueChange={(v) => setOrderBy(v as TaskOrderBy)}>
+						<Select
+							value={orderBy}
+							onValueChange={(value) => setOrderBy(value as TaskOrderBy)}
+						>
 							<SelectTrigger id="order-by" className="w-40">
 								<SelectValue placeholder="Ordenar por:" />
 							</SelectTrigger>

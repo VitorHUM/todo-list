@@ -63,7 +63,7 @@ shadcn/ui = Componentes acessíveis, composáveis e sem lock-in de estilo.
 <details>
   <summary><b>Busca, filtros e ordenação</b></summary>
   <ul>
-    <li>Busca incremental por título, com limpeza rápida (botão “X” e tecla Esc).</li>
+    <li>Busca incremental por título, com limpeza rápida (botão “X”).</li>
     <li>Filtros por status: Todas, Ativas e Concluídas, com contadores em tempo real.</li>
     <li>Ordenação configurável: mais recentes, mais antigas, título A–Z e Z–A.</a></li>
   </ul>
