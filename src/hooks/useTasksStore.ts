@@ -52,6 +52,7 @@ export const useTasksStore = createWithEqualityFn<TasksStore>()(
 			searchTerm: '',
 			orderBy: 'createdAtDesc',
 
+			// Adiciona uma nova tarefa
 			addTask: (title, description) =>
 				set((s) => ({
 					tasks: [
