@@ -90,7 +90,7 @@ export const TaskList = () => {
 								type="button"
 								variant="ghost"
 								size="icon"
-								className="absolute right-0 top-1/2 -translate-y-1/2"
+								className="hover:text-primary-gray absolute right-0 top-1/2 -translate-y-1/2 hover:bg-transparent"
 								aria-label="Limpar busca"
 								onClick={() => setSearchTerm('')}
 							>
